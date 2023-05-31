@@ -1,0 +1,25 @@
+busqueda de coche
+
+si existe : demostrar salida de coche
+
+
+no existe : entrada de coche
+
+
+entrada de coche 
+
+comprar entrada 
+consultar plazas disponibles 
+consultar plazas ocupadas
+historial per plaça
+
+
+salida de coche
+
+import que ha de pagar 
+donadas una data y una hora, el numero de plazas ocupadas
+historial per matricula
+llistat de les deu plazas que han estat mes ocupadas
+
+
+https://docs.peewee-orm.com/en/latest/peewee/models.html?highlight=table%20generation
