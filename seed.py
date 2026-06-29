@@ -10,6 +10,10 @@ django.setup()
 from parking.models import Parking, Level, ParkingSpot, Tariff, VehicleSession, TariffType, SpotStatus
 
 def run_seed():
+    if Parking.objects.exists():
+        print("Database already seeded. Skipping.")
+        return
+        
     print("Seeding database...")
     
     VehicleSession.objects.all().delete()

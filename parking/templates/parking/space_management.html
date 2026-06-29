@@ -15,7 +15,10 @@
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans antialiased overflow-hidden">
 <!-- SideNavBar -->
-<nav class="bg-white fixed left-0 top-0 h-full w-[280px] border-r border-gray-200 flex flex-col py-6 z-20">
+<nav id="sidebar" class="flex flex-col h-full py-6 bg-white fixed left-0 top-0 w-[280px] border-r border-gray-200 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex">
+
+<div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden md:hidden"></div>
+
 <div class="px-6 mb-8">
 <h1 class="text-2xl font-bold text-gray-900">ParkControl Pro</h1>
 <p class="text-sm text-gray-500 mt-1">{% trans "Terminal A - Principal" %}</p>
@@ -30,27 +33,42 @@
 <li><a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'analytics' %}"><span class="material-symbols-outlined">analytics</span><span class="text-xs font-semibold">{% trans "Analíticas" %}</span></a></li>
 </ul>
 
-<div class="px-6 mt-auto mb-4">
-    <form action="{% url 'set_language' %}" method="post" class="flex gap-2">
-        {% csrf_token %}
-        <input name="next" type="hidden" value="{{ request.get_full_path }}">
-        <select name="language" onchange="this.form.submit()" class="text-sm bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2">
+
+</nav>
+
+
+<!-- Main Content -->
+<main class="md:ml-[280px] h-screen overflow-y-auto bg-gray-50 p-6">
+
+<div class="md:hidden flex items-center h-16 px-6 bg-white border-b border-gray-200 z-10 w-[calc(100%+3rem)] mb-6 shrink-0 -mx-6 -mt-6">
+    
+<button type="button" onclick="toggleSidebar()" class="md:hidden text-gray-500 hover:text-gray-900 focus:outline-none mr-4 flex items-center justify-center shrink-0">
+    <span class="material-symbols-outlined text-2xl">menu</span>
+</button>
+
+    <h1 class="text-lg font-bold text-gray-900">Menu</h1>
+
+
+<form action="{% url 'set_language' %}" method="post" class="ml-auto flex items-center">
+    {% csrf_token %}
+    <input name="next" type="hidden" value="{{ request.get_full_path }}">
+    <div class="relative">
+        <select name="language" onchange="this.form.submit()" class="appearance-none bg-gray-100 hover:bg-gray-200 border border-transparent text-gray-700 font-bold py-1.5 pl-3 pr-8 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors text-sm cursor-pointer shadow-sm">
             {% get_current_language as LANGUAGE_CODE %}
             {% get_available_languages as LANGUAGES %}
             {% get_language_info_list for LANGUAGES as languages %}
             {% for language in languages %}
                 <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
-                    {{ language.name_local|title }}
+                    {{ language.code|upper }}
                 </option>
             {% endfor %}
         </select>
-    </form>
+        <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" style="font-size: 16px;">language</span>
+    </div>
+</form>
+
 </div>
-</nav>
-
-
-<!-- Main Content -->
-<main class="ml-[280px] h-screen overflow-y-auto bg-gray-50 p-6">
+                
 <div class="max-w-[1440px] mx-auto">
 <!-- Page Header & {% trans "Filtros" %} -->
 <div class="flex justify-between items-end mb-8">
