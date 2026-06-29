@@ -1,3 +1,4 @@
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="utf-8"/>
@@ -51,7 +52,7 @@
             </div>
             <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 text-right">
                 <p class="text-sm text-gray-500 font-semibold mb-1">Tiempo Transcurrido</p>
-                <p class="text-lg font-bold text-gray-900">{{ duration_hours }} h</p>
+                <p class="text-lg font-bold text-gray-900">{{ duration_{% trans "horas" %} }} h</p>
             </div>
         </div>
 

@@ -1,3 +1,4 @@
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="utf-8"/>
@@ -19,15 +20,33 @@
 <h1 class="text-2xl font-bold text-gray-900">ParkControl Pro</h1>
 </div>
 <div class="flex-1 overflow-y-auto px-4 flex flex-col gap-2">
-<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'dashboard' %}"><span class="material-symbols-outlined">dashboard</span><span class="text-sm font-semibold">Dashboard</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'vehicle_search' %}"><span class="material-symbols-outlined">search</span><span class="text-sm font-semibold">Buscador</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'parking_list' %}"><span class="material-symbols-outlined">location_city</span><span class="text-sm font-semibold">Parkings</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'space_management' %}"><span class="material-symbols-outlined">mms</span><span class="text-sm font-semibold">Space Management</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'vehicle_registry' %}"><span class="material-symbols-outlined">directions_car</span><span class="text-sm font-semibold">Vehicle Registry</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'rates_billing' %}"><span class="material-symbols-outlined">payments</span><span class="text-sm font-semibold">Rates &amp; Billing</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded text-blue-700 font-bold border-r-4 border-blue-700 bg-blue-50" href="{% url 'analytics' %}"><span class="material-symbols-outlined fill-icon">analytics</span><span class="text-sm font-semibold">Analíticas</span></a>
+<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'dashboard' %}"><span class="material-symbols-outlined">dashboard</span><span class="text-sm font-semibold">{% trans "Dashboard" %}</span></a>
+<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'vehicle_search' %}"><span class="material-symbols-outlined">search</span><span class="text-sm font-semibold">{% trans "Buscador" %}</span></a>
+<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'parking_list' %}"><span class="material-symbols-outlined">location_city</span><span class="text-sm font-semibold">{% trans "Parkings" %}</span></a>
+<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'space_management' %}"><span class="material-symbols-outlined">mms</span><span class="text-sm font-semibold">{% trans "Space Management" %}</span></a>
+<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'vehicle_registry' %}"><span class="material-symbols-outlined">directions_car</span><span class="text-sm font-semibold">{% trans "Vehicle Registry" %}</span></a>
+<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'rates_billing' %}"><span class="material-symbols-outlined">payments</span><span class="text-sm font-semibold">{% trans "Tarifa" %}s &amp; Billing" %}</span></a>
+<a class="flex items-center gap-4 px-4 py-2 rounded text-blue-700 font-bold border-r-4 border-blue-700 bg-blue-50" href="{% url 'analytics' %}"><span class="material-symbols-outlined fill-icon">analytics</span><span class="text-sm font-semibold">{% trans "Analíticas" %}</span></a>
+</div>
+
+<div class="px-6 mt-auto mb-4">
+    <form action="{% url 'set_language' %}" method="post" class="flex gap-2">
+        {% csrf_token %}
+        <input name="next" type="hidden" value="{{ request.get_full_path }}">
+        <select name="language" onchange="this.form.submit()" class="text-sm bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2">
+            {% get_current_language as LANGUAGE_CODE %}
+            {% get_available_languages as LANGUAGES %}
+            {% get_language_info_list for LANGUAGES as languages %}
+            {% for language in languages %}
+                <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                    {{ language.name_local|title }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
 </div>
 </nav>
+
 
 <!-- Main Content Area -->
 <main class="flex-1 flex flex-col md:ml-[280px] h-full overflow-hidden w-full relative">

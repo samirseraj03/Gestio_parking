@@ -14,6 +14,7 @@ from decimal import Decimal, ROUND_HALF_UP
 
 from django.db import transaction
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from .models import (
     ParkingSpot,
@@ -107,13 +108,14 @@ def vehicle_check_in(
         )
     except ParkingSpot.DoesNotExist:
         raise SpotNotFoundError(
-            f"La plaza con ID {spot_id} no existe."
+            _("La plaza con ID %(spot_id)s no existe.") % {'spot_id': spot_id}
         )
 
     if spot.status != SpotStatus.FREE:
         raise SpotNotAvailableError(
-            f"La plaza {spot.number} no está disponible. "
-            f"Estado actual: {spot.get_status_display()}."
+            _("La plaza %(number)s no está disponible. Estado actual: %(status)s.") % {
+                'number': spot.number, 'status': spot.get_status_display()
+            }
         )
 
     # 2. Validar la tarifa
@@ -121,7 +123,7 @@ def vehicle_check_in(
         tariff: Tariff = Tariff.objects.get(id=tariff_id, is_active=True)
     except Tariff.DoesNotExist:
         raise TariffNotFoundError(
-            f"La tarifa con ID {tariff_id} no existe o no está activa."
+            _("La tarifa con ID %(tariff_id)s no existe o no está activa.") % {'tariff_id': tariff_id}
         )
 
     # 3. Comprobar que el vehículo no está ya dentro
@@ -132,8 +134,9 @@ def vehicle_check_in(
 
     if active_session_exists:
         raise VehicleAlreadyParkedError(
-            f"El vehículo con matrícula '{license_plate}' ya tiene una "
-            f"sesión activa en el parking."
+            _("El vehículo con matrícula '%(license_plate)s' ya tiene una sesión activa en el parking.") % {
+                'license_plate': license_plate
+            }
         )
 
     # 4. Crear la sesión de estacionamiento
@@ -184,14 +187,16 @@ def vehicle_check_out(*, session_id: int) -> VehicleSession:
         )
     except VehicleSession.DoesNotExist:
         raise SessionNotFoundError(
-            f"La sesión con ID {session_id} no existe."
+            _("La sesión con ID %(session_id)s no existe.") % {'session_id': session_id}
         )
 
     if session.exit_time is not None:
         raise SessionAlreadyClosedError(
-            f"La sesión {session_id} ya fue cerrada el "
-            f"{session.exit_time.strftime('%Y-%m-%d %H:%M:%S')}. "
-            f"Importe cobrado: {session.total_amount}€."
+            _("La sesión %(session_id)s ya fue cerrada el %(exit_time)s. Importe cobrado: %(amount)s€.") % {
+                'session_id': session_id,
+                'exit_time': session.exit_time.strftime('%Y-%m-%d %H:%M:%S'),
+                'amount': session.total_amount
+            }
         )
 
     # 2. Calcular el tiempo transcurrido
@@ -286,13 +291,14 @@ def reserve_spot(*, spot_id: int) -> ParkingSpot:
         )
     except ParkingSpot.DoesNotExist:
         raise SpotNotFoundError(
-            f"La plaza con ID {spot_id} no existe."
+            _("La plaza con ID %(spot_id)s no existe.") % {'spot_id': spot_id}
         )
 
     if spot.status != SpotStatus.FREE:
         raise SpotNotAvailableError(
-            f"La plaza {spot.number} no está disponible para reservar. "
-            f"Estado actual: {spot.get_status_display()}."
+            _("La plaza %(number)s no está disponible para reservar. Estado actual: %(status)s.") % {
+                'number': spot.number, 'status': spot.get_status_display()
+            }
         )
 
     spot.status = SpotStatus.RESERVED
@@ -324,13 +330,14 @@ def cancel_reservation(*, spot_id: int) -> ParkingSpot:
         )
     except ParkingSpot.DoesNotExist:
         raise SpotNotFoundError(
-            f"La plaza con ID {spot_id} no existe."
+            _("La plaza con ID %(spot_id)s no existe.") % {'spot_id': spot_id}
         )
 
     if spot.status != SpotStatus.RESERVED:
         raise SpotNotAvailableError(
-            f"La plaza {spot.number} no está reservada. "
-            f"Estado actual: {spot.get_status_display()}."
+            _("La plaza %(number)s no está reservada. Estado actual: %(status)s.") % {
+                'number': spot.number, 'status': spot.get_status_display()
+            }
         )
 
     spot.status = SpotStatus.FREE
@@ -347,11 +354,11 @@ def update_pricing_configuration(*, weekend_surcharge: str | int, event_multipli
         surcharge = int(weekend_surcharge)
         multiplier = float(event_multiplier)
     except (ValueError, TypeError):
-        raise InvalidConfigurationError("Los valores de configuración deben ser numéricos.")
+        raise InvalidConfigurationError(_("Los valores de configuración deben ser numéricos."))
     if not (0 <= surcharge <= 100):
-        raise InvalidConfigurationError("El recargo de fin de semana debe estar entre 0% y 100%.")
+        raise InvalidConfigurationError(_("El recargo de fin de semana debe estar entre 0% y 100%."))
     if multiplier < 1.0:
-        raise InvalidConfigurationError("El multiplicador de eventos no puede ser menor a 1.0x.")
+        raise InvalidConfigurationError(_("El multiplicador de eventos no puede ser menor a 1.0x."))
 
 # =============================================================================
 # FUNCIONES AÑADIDAS PARA PARKING CRUD
@@ -390,7 +397,7 @@ def check_in_vehicle(license_plate: str, spot_id: int, tariff_id: int) -> Vehicl
     spot = ParkingSpot.objects.select_for_update().get(id=spot_id)
     
     if spot.status != SpotStatus.FREE:
-        raise ParkingServiceError(f"La plaza {spot.number} no está libre.")
+        raise ParkingServiceError(_("La plaza %(number)s no está libre.") % {'number': spot.number})
         
     tariff = Tariff.objects.get(id=tariff_id)
     
@@ -414,7 +421,7 @@ def checkout_vehicle(session_id: int) -> VehicleSession:
     session = VehicleSession.objects.select_for_update().get(id=session_id)
     
     if session.exit_time is not None:
-        raise ParkingServiceError("La sesión ya estaba cerrada.")
+        raise ParkingServiceError(_("La sesión ya estaba cerrada."))
         
     now = timezone.now()
     duration = now - session.entry_time

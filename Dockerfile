@@ -11,10 +11,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Instalar dependencias del sistema necesarias para PostgreSQL y compilar paquetes
+# Instalar dependencias del sistema necesarias
 RUN apt-get update && apt-get install -y \
-    build-essential \
+    gcc \
     libpq-dev \
+    gettext \
     && rm -rf /var/lib/apt/lists/*
 
 # Copiar el archivo de dependencias

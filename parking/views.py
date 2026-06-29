@@ -2,6 +2,7 @@ from django.views.generic import TemplateView
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.utils.translation import gettext as _
 import math
 
 from parking import selectors, services
@@ -53,13 +54,13 @@ class SpaceManagementView(TemplateView):
         try:
             if action == "reserve":
                 services.reserve_spot(spot_id=int(spot_id))
-                messages.success(request, f"Plaza reservada con éxito.")
+                messages.success(request, _("Plaza reservada con éxito."))
             elif action == "free":
                 services.cancel_reservation(spot_id=int(spot_id))
-                messages.success(request, f"Plaza liberada con éxito.")
+                messages.success(request, _("Plaza liberada con éxito."))
         except Exception as e:
             from django.contrib import messages
-            messages.error(request, f"Error al modificar plaza: {e}")
+            messages.error(request, _("Error al modificar plaza: %(error)s") % {'error': e})
             
         from django.urls import reverse
         from django.shortcuts import redirect
@@ -135,7 +136,7 @@ class RatesBillingView(TemplateView):
                 event_multiplier=event_multiplier,
                 is_dynamic=is_dynamic
             )
-            messages.success(request, "Configuración de precios aplicada correctamente.")
+            messages.success(request, _("Configuración de precios aplicada correctamente."))
         except ParkingServiceError as e:
             # Manejo centralizado de errores del servicio
             messages.error(request, str(e))
@@ -160,12 +161,12 @@ class ParkingListView(TemplateView):
             if action == 'edit':
                 parking_id = request.POST.get('parking_id')
                 services.update_parking(int(parking_id), name, address, True)
-                messages.success(request, f"Parking {name} actualizado correctamente.")
+                messages.success(request, _("Parking %(name)s actualizado correctamente.") % {'name': name})
             else:
                 services.create_parking(name=name, address=address)
-                messages.success(request, f"Parking {name} creado correctamente.")
+                messages.success(request, _("Parking %(name)s creado correctamente.") % {'name': name})
         except Exception as e:
-            messages.error(request, f"Error en parking: {e}")
+            messages.error(request, _("Error en parking: %(error)s") % {'error': e})
             
         return redirect('parking_list')
 
@@ -179,7 +180,7 @@ class VehicleSearchView(TemplateView):
     def post(self, request, *args, **kwargs):
         license_plate = request.POST.get("license_plate", "").strip().upper()
         if not license_plate:
-            messages.error(request, "Por favor introduce una matrícula.")
+            messages.error(request, _("Por favor introduce una matrícula."))
             return redirect("vehicle_search")
             
         # Preguntar al selector si el coche está dentro
@@ -210,10 +211,10 @@ class CheckInView(TemplateView):
         
         try:
             services.check_in_vehicle(plate, int(spot_id), int(tariff_id))
-            messages.success(request, f"Entrada registrada para {plate}.")
+            messages.success(request, _("Entrada registrada para %(plate)s.") % {'plate': plate})
             return redirect("dashboard")
         except Exception as e:
-            messages.error(request, f"Error al registrar entrada: {e}")
+            messages.error(request, _("Error al registrar entrada: %(error)s") % {'error': e})
             return redirect("checkin", plate=plate)
 
 from django.utils import timezone
@@ -251,10 +252,10 @@ class CheckOutView(TemplateView):
         plate = self.kwargs.get("plate")
         try:
             services.checkout_vehicle(int(session_id))
-            messages.success(request, f"Salida y cobro procesado correctamente para {plate}.")
+            messages.success(request, _("Salida y cobro procesado correctamente para %(plate)s.") % {'plate': plate})
             return redirect("dashboard")
         except Exception as e:
-            messages.error(request, f"Error al procesar salida: {e}")
+            messages.error(request, _("Error al procesar salida: %(error)s") % {'error': e})
             return redirect("checkout", plate=plate)
 
 from django.utils.dateparse import parse_datetime

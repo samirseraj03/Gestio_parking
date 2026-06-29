@@ -1,3 +1,4 @@
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="utf-8"/>
@@ -20,15 +21,33 @@
 <p class="text-sm text-gray-500 mt-1">Global Manager</p>
 </div>
 <div class="flex-1 overflow-y-auto px-4 flex flex-col gap-2">
-<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'dashboard' %}"><span class="material-symbols-outlined">dashboard</span><span class="text-sm font-semibold">Dashboard</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'vehicle_search' %}"><span class="material-symbols-outlined">search</span><span class="text-sm font-semibold">Buscador</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded text-blue-700 font-bold border-r-4 border-blue-700 bg-blue-50" href="{% url 'parking_list' %}"><span class="material-symbols-outlined fill-icon">location_city</span><span class="text-sm font-semibold">Parkings</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'space_management' %}"><span class="material-symbols-outlined">mms</span><span class="text-sm font-semibold">Space Management</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'vehicle_registry' %}"><span class="material-symbols-outlined">directions_car</span><span class="text-sm font-semibold">Vehicle Registry</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'rates_billing' %}"><span class="material-symbols-outlined">payments</span><span class="text-sm font-semibold">Rates &amp; Billing</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'analytics' %}"><span class="material-symbols-outlined">analytics</span><span class="text-sm font-semibold">Analíticas</span></a>
+<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'dashboard' %}"><span class="material-symbols-outlined">dashboard</span><span class="text-sm font-semibold">{% trans "Dashboard" %}</span></a>
+<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'vehicle_search' %}"><span class="material-symbols-outlined">search</span><span class="text-sm font-semibold">{% trans "Buscador" %}</span></a>
+<a class="flex items-center gap-4 px-4 py-2 rounded text-blue-700 font-bold border-r-4 border-blue-700 bg-blue-50" href="{% url 'parking_list' %}"><span class="material-symbols-outlined fill-icon">location_city</span><span class="text-sm font-semibold">{% trans "Parkings" %}</span></a>
+<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'space_management' %}"><span class="material-symbols-outlined">mms</span><span class="text-sm font-semibold">{% trans "Space Management" %}</span></a>
+<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'vehicle_registry' %}"><span class="material-symbols-outlined">directions_car</span><span class="text-sm font-semibold">{% trans "Vehicle Registry" %}</span></a>
+<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'rates_billing' %}"><span class="material-symbols-outlined">payments</span><span class="text-sm font-semibold">{% trans "Tarifa" %}s &amp; Billing" %}</span></a>
+<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'analytics' %}"><span class="material-symbols-outlined">analytics</span><span class="text-sm font-semibold">{% trans "Analíticas" %}</span></a>
+</div>
+
+<div class="px-6 mt-auto mb-4">
+    <form action="{% url 'set_language' %}" method="post" class="flex gap-2">
+        {% csrf_token %}
+        <input name="next" type="hidden" value="{{ request.get_full_path }}">
+        <select name="language" onchange="this.form.submit()" class="text-sm bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2">
+            {% get_current_language as LANGUAGE_CODE %}
+            {% get_available_languages as LANGUAGES %}
+            {% get_language_info_list for LANGUAGES as languages %}
+            {% for language in languages %}
+                <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                    {{ language.name_local|title }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
 </div>
 </nav>
+
 
 <!-- Main Content Area -->
 <main class="flex-1 flex flex-col md:ml-[280px] h-full overflow-hidden w-full relative">
@@ -62,7 +81,7 @@
                 <p class="text-xs text-gray-500 uppercase">Niveles</p>
                 <p class="font-bold text-gray-900">{{ parking.levels.count }}</p>
             <div class="flex gap-2">
-                <button onclick="openEditModal('{{ parking.id }}', '{{ parking.name|escapejs }}', '{{ parking.address|escapejs }}')" class="text-gray-600 bg-gray-50 border border-gray-200 px-3 py-2 rounded font-semibold text-sm hover:bg-gray-100 transition">Editar</button>
+                <button onclick="open{% trans "Editar" %}Modal('{{ parking.id }}', '{{ parking.name|escapejs }}', '{{ parking.address|escapejs }}')" class="text-gray-600 bg-gray-50 border border-gray-200 px-3 py-2 rounded font-semibold text-sm hover:bg-gray-100 transition">{% trans "Editar" %}ar</button>
                 <a href="{% url 'space_management' %}?parking={{ parking.id }}" class="text-blue-700 bg-blue-50 px-3 py-2 rounded font-semibold text-sm hover:bg-blue-100 transition">Gestionar</a>
             </div>
     </div>
@@ -98,7 +117,7 @@
         </div>
 
         <div class="flex justify-end gap-3 mt-8 pt-4 border-t border-gray-100">
-            <button type="button" onclick="document.getElementById('add-modal').classList.add('hidden')" class="px-4 py-2 font-semibold text-gray-600 hover:bg-gray-100 rounded transition">Cancelar</button>
+            <button type="button" onclick="document.getElementById('add-modal').classList.add('hidden')" class="px-4 py-2 font-semibold text-gray-600 hover:bg-gray-100 rounded transition">{% trans "Cancelar" %}ar</button>
             <button type="submit" class="px-6 py-2 bg-blue-700 text-white font-bold rounded hover:bg-blue-800 transition shadow">Guardar Parking</button>
         </div>
     </form>
@@ -112,7 +131,7 @@
         <input type="hidden" name="parking_id" id="edit-parking-id">
         
         <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold text-gray-900">Editar Parking</h2>
+            <h2 class="text-xl font-bold text-gray-900">{% trans "Editar" %}ar Parking</h2>
             <button type="button" onclick="document.getElementById('edit-modal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
                 <span class="material-symbols-outlined">close</span>
             </button>
@@ -130,14 +149,14 @@
         </div>
 
         <div class="flex justify-end gap-3 mt-8 pt-4 border-t border-gray-100">
-            <button type="button" onclick="document.getElementById('edit-modal').classList.add('hidden')" class="px-4 py-2 font-semibold text-gray-600 hover:bg-gray-100 rounded transition">Cancelar</button>
+            <button type="button" onclick="document.getElementById('edit-modal').classList.add('hidden')" class="px-4 py-2 font-semibold text-gray-600 hover:bg-gray-100 rounded transition">{% trans "Cancelar" %}ar</button>
             <button type="submit" class="px-6 py-2 bg-blue-700 text-white font-bold rounded hover:bg-blue-800 transition shadow">Actualizar Parking</button>
         </div>
     </form>
 </div>
 
 <script>
-    function openEditModal(id, name, address) {
+    function open{% trans "Editar" %}Modal(id, name, address) {
         document.getElementById('edit-parking-id').value = id;
         document.getElementById('edit-name').value = name;
         document.getElementById('edit-address').value = address !== 'None' ? address : '';

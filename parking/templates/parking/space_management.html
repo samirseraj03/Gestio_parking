@@ -1,3 +1,4 @@
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="utf-8"/>
@@ -17,31 +18,49 @@
 <nav class="bg-white fixed left-0 top-0 h-full w-[280px] border-r border-gray-200 flex flex-col py-6 z-20">
 <div class="px-6 mb-8">
 <h1 class="text-2xl font-bold text-gray-900">ParkControl Pro</h1>
-<p class="text-sm text-gray-500 mt-1">Terminal A - Main</p>
+<p class="text-sm text-gray-500 mt-1">{% trans "Terminal A - Principal" %}</p>
 </div>
 <ul class="flex flex-col gap-2 flex-1 px-4">
-<li><a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'dashboard' %}"><span class="material-symbols-outlined">dashboard</span><span class="text-xs font-semibold">Dashboard</span></a></li>
-<li><a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'vehicle_search' %}"><span class="material-symbols-outlined">search</span><span class="text-xs font-semibold">Buscador</span></a></li>
-<li><a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'parking_list' %}"><span class="material-symbols-outlined">location_city</span><span class="text-xs font-semibold">Parkings</span></a></li>
-<li><a class="flex items-center gap-4 px-4 py-2 rounded text-blue-700 font-bold border-r-4 border-blue-700 bg-blue-50" href="{% url 'space_management' %}"><span class="material-symbols-outlined fill-icon">mms</span><span class="text-xs font-semibold">Space Management</span></a></li>
-<li><a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'vehicle_registry' %}"><span class="material-symbols-outlined">directions_car</span><span class="text-xs font-semibold">Vehicle Registry</span></a></li>
-<li><a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'rates_billing' %}"><span class="material-symbols-outlined">payments</span><span class="text-xs font-semibold">Rates &amp; Billing</span></a></li>
-<li><a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'analytics' %}"><span class="material-symbols-outlined">analytics</span><span class="text-xs font-semibold">Analíticas</span></a></li>
+<li><a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'dashboard' %}"><span class="material-symbols-outlined">dashboard</span><span class="text-xs font-semibold">{% trans "Dashboard" %}</span></a></li>
+<li><a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'vehicle_search' %}"><span class="material-symbols-outlined">search</span><span class="text-xs font-semibold">{% trans "Buscador" %}</span></a></li>
+<li><a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'parking_list' %}"><span class="material-symbols-outlined">location_city</span><span class="text-xs font-semibold">{% trans "Parkings" %}</span></a></li>
+<li><a class="flex items-center gap-4 px-4 py-2 rounded text-blue-700 font-bold border-r-4 border-blue-700 bg-blue-50" href="{% url 'space_management' %}"><span class="material-symbols-outlined fill-icon">mms</span><span class="text-xs font-semibold">{% trans "Space Management" %}</span></a></li>
+<li><a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'vehicle_registry' %}"><span class="material-symbols-outlined">directions_car</span><span class="text-xs font-semibold">{% trans "Vehicle Registry" %}</span></a></li>
+<li><a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'rates_billing' %}"><span class="material-symbols-outlined">payments</span><span class="text-xs font-semibold">{% trans "Tarifa" %}s &amp; Billing" %}</span></a></li>
+<li><a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'analytics' %}"><span class="material-symbols-outlined">analytics</span><span class="text-xs font-semibold">{% trans "Analíticas" %}</span></a></li>
 </ul>
+
+<div class="px-6 mt-auto mb-4">
+    <form action="{% url 'set_language' %}" method="post" class="flex gap-2">
+        {% csrf_token %}
+        <input name="next" type="hidden" value="{{ request.get_full_path }}">
+        <select name="language" onchange="this.form.submit()" class="text-sm bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2">
+            {% get_current_language as LANGUAGE_CODE %}
+            {% get_available_languages as LANGUAGES %}
+            {% get_language_info_list for LANGUAGES as languages %}
+            {% for language in languages %}
+                <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                    {{ language.name_local|title }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
 </nav>
+
 
 <!-- Main Content -->
 <main class="ml-[280px] h-screen overflow-y-auto bg-gray-50 p-6">
 <div class="max-w-[1440px] mx-auto">
-<!-- Page Header & Filters -->
+<!-- Page Header & {% trans "Filtros" %} -->
 <div class="flex justify-between items-end mb-8">
 <div>
-<h2 class="text-xl font-bold text-gray-900 mb-1">Space Management</h2>
+<h2 class="text-xl font-bold text-gray-900 mb-1">{% trans "Space Management" %}</h2>
 <p class="text-sm text-gray-500">Real-time terminal bay occupancy.</p>
 </div>
 <form method="GET" class="flex gap-4">
 <div class="flex flex-col gap-1">
-<label class="text-xs font-semibold text-gray-500">Floor</label>
+<label class="text-xs font-semibold text-gray-500">{% trans "Planta" %}</label>
 <select name="floor" onchange="this.form.submit()" class="border border-gray-200 rounded bg-white px-4 py-1 text-sm focus:border-blue-700 focus:ring-1 focus:ring-blue-700">
 <option value="">All Levels</option>
 <option value="1" {% if request.GET.floor == "1" %}selected{% endif %}>Level 1</option>
@@ -49,12 +68,12 @@
 </select>
 </div>
 <div class="flex flex-col gap-1">
-<label class="text-xs font-semibold text-gray-500">Status</label>
+<label class="text-xs font-semibold text-gray-500">{% trans "Estado" %}</label>
 <select name="status" onchange="this.form.submit()" class="border border-gray-200 rounded bg-white px-4 py-1 text-sm focus:border-blue-700 focus:ring-1 focus:ring-blue-700">
-<option value="">All Statuses</option>
+<option value="">All {% trans "Estado" %}es</option>
 <option value="free" {% if request.GET.status == "free" %}selected{% endif %}>Available</option>
-<option value="occupied" {% if request.GET.status == "occupied" %}selected{% endif %}>Occupied</option>
-<option value="reserved" {% if request.GET.status == "reserved" %}selected{% endif %}>Reserved</option>
+<option value="occupied" {% if request.GET.status == "occupied" %}selected{% endif %}>{% trans "Ocupado" %}</option>
+<option value="reserved" {% if request.GET.status == "reserved" %}selected{% endif %}>{% trans "Reservado" %}</option>
 </select>
 </div>
 </form>
