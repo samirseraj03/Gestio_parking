@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # Servicio de Base de Datos
+  db:
+    image: postgres:15-alpine
+    container_name: parkcontrol_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gestion_parking_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      # Mapeamos al puerto 5433 del host para evitar conflictos si ya tienes un Postgres corriendo en el 5432
+      - "5433:5432"
+    volumes:
+      # Volumen persistente: los datos de los parkings y coches no se perderán
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Servicio de la Web App (Django)
+  web:
+    build: .
+    container_name: parkcontrol_web
+    restart: unless-stopped
+    command: >
+      bash -c "python manage.py migrate && 
+               python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      # Sincroniza el código en tiempo real (solo útil para desarrollo local)
+      - .:/app
+    ports:
+      - "8001:8000"
+    environment:
+      # Credenciales para conectar con el servicio 'db'
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      db:
+        condition: service_healthy
+
+# Declaración del volumen manejado por Docker
+volumes:
+  postgres_data:
