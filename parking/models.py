@@ -170,6 +170,12 @@ class Tariff(models.Model):
         ordering = ["tariff_type", "name"]
         verbose_name = _("Tarifa")
         verbose_name_plural = _("Tarifas")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["tariff_type"],
+                name="unique_tariff_type",
+            ),
+        ]
 
     def __str__(self) -> str:
         return f"{self.name} ({self.get_tariff_type_display()}) — {self.price_per_hour}€/h"

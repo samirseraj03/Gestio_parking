@@ -1,94 +1,21 @@
+{% extends "parking/_base.html" %}
 {% load i18n %}
-<!DOCTYPE html>
-<html lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>ParkControl Pro - {% trans "Tarifa" %}s &amp; Billing</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
-<style>
-    body { font-family: 'Inter', sans-serif; background-color: #fcf8fa; }
-    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-    .fill-icon { font-variation-settings: 'FILL' 1; }
-    .shadow-level-1 { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02); }
-</style>
-</head>
-<body class="bg-gray-50 text-gray-900 min-h-screen flex antialiased">
-<!-- SideNavBar -->
-<nav id="sidebar" class="flex flex-col h-full py-6 bg-white fixed left-0 top-0 w-[280px] border-r border-gray-200 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex z-50">
 
-<div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden md:hidden"></div>
+{% block title %}{% trans "Tarifas y Facturación" %}{% endblock %}
+{% block page_title %}{% trans "Tarifas y Facturación" %}{% endblock %}
 
-<div class="px-6 mb-8">
-<h1 class="text-2xl font-bold text-gray-900">ParkControl Pro</h1>
-<p class="text-sm text-gray-500 mt-1">{% trans "Terminal A - Principal" %}</p>
-</div>
-<div class="flex-1 flex flex-col gap-2 px-4">
-<a class="flex items-center gap-4 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-600" href="{% url 'dashboard' %}"><span class="material-symbols-outlined">dashboard</span><span class="text-sm font-semibold">{% trans "Dashboard" %}</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-600" href="{% url 'vehicle_search' %}"><span class="material-symbols-outlined">search</span><span class="text-sm font-semibold">{% trans "Buscador" %}</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-600" href="{% url 'parking_list' %}"><span class="material-symbols-outlined">location_city</span><span class="text-sm font-semibold">{% trans "Parkings" %}</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-600" href="{% url 'space_management' %}"><span class="material-symbols-outlined">mms</span><span class="text-sm font-semibold">{% trans "Space Management" %}</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-600" href="{% url 'vehicle_registry' %}"><span class="material-symbols-outlined">directions_car</span><span class="text-sm font-semibold">{% trans "Vehicle Registry" %}</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded-lg text-blue-700 font-bold border-l-4 border-blue-700 bg-blue-50" href="{% url 'rates_billing' %}"><span class="material-symbols-outlined fill-icon">payments</span><span class="text-sm font-semibold">{% trans "Tarifa" %}s &amp; Billing" %}</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-600" href="{% url 'analytics' %}"><span class="material-symbols-outlined">analytics</span><span class="text-sm font-semibold">{% trans "Analíticas" %}</span></a>
-</div>
-
-
-</nav>
-
-<!-- Main Content Area -->
-<main class="md:ml-[280px] flex-1 flex flex-col w-full">
-<header class="bg-white border-b border-gray-200 flex justify-between items-center h-16 px-6 w-full sticky top-0 z-40">
-
-<button type="button" onclick="toggleSidebar()" class="md:hidden text-gray-500 hover:text-gray-900 focus:outline-none mr-4 flex items-center justify-center shrink-0">
-    <span class="material-symbols-outlined text-2xl">menu</span>
-</button>
-
-<div class="text-xl font-bold text-gray-900">{% trans "Tarifa" %}s &amp; Billing" %}</div>
-
-
-<form action="{% url 'set_language' %}" method="post" class="ml-auto flex items-center">
-    {% csrf_token %}
-    <input name="next" type="hidden" value="{{ request.get_full_path }}">
-    <div class="relative">
-        <select name="language" onchange="this.form.submit()" class="appearance-none bg-gray-100 hover:bg-gray-200 border border-transparent text-gray-700 font-bold py-1.5 pl-3 pr-8 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors text-sm cursor-pointer shadow-sm">
-            {% get_current_language as LANGUAGE_CODE %}
-            {% get_available_languages as LANGUAGES %}
-            {% get_language_info_list for LANGUAGES as languages %}
-            {% for language in languages %}
-                <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
-                    {{ language.code|upper }}
-                </option>
-            {% endfor %}
-        </select>
-        <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" style="font-size: 16px;">language</span>
-    </div>
-</form>
-
-</header>
-<div class="p-6 overflow-y-auto">
-{% if messages %}
-<div class="mb-6 space-y-2">
-    {% for message in messages %}
-    <div class="p-4 rounded {% if message.tags == 'error' %}bg-red-50 text-red-700 border border-red-200{% else %}bg-green-50 text-green-700 border border-green-200{% endif %}">
-        {{ message }}
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
-
-<!-- {% trans "Resumen Financiero" %} Row -->
+{% block content %}
+<!-- Financial Summary Row -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
 <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-level-1">
 <div class="flex justify-between items-start mb-4">
-<h2 class="text-xs font-semibold text-gray-500 uppercase">Total {% trans "Ingresos Mensuales" %}</h2>
+<h2 class="text-xs font-semibold text-gray-500 uppercase">{% trans "Ingresos Mensuales" %}</h2>
 <span class="material-symbols-outlined text-blue-700">trending_up</span>
 </div>
-<div class="text-5xl font-bold text-gray-900 mb-2">${{ monthly_revenue }}</div>
+<div class="text-5xl font-bold text-gray-900 mb-2">{{ monthly_revenue }}€</div>
 <div class="flex items-center gap-2 text-sm">
 <span class="text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full font-bold">+{{ revenue_growth }}%</span>
-<span class="text-gray-500">vs last month</span>
+<span class="text-gray-500">{% trans "vs. mes anterior" %}</span>
 </div>
 </div>
 <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-level-1">
@@ -96,10 +23,10 @@
 <h2 class="text-xs font-semibold text-gray-500 uppercase">{% trans "Pagos Pendientes" %}</h2>
 <span class="material-symbols-outlined text-gray-400">pending_actions</span>
 </div>
-<div class="text-5xl font-bold text-gray-900 mb-2">${{ pending_payments.amount }}</div>
+<div class="text-5xl font-bold text-gray-900 mb-2">{{ pending_payments.amount }}€</div>
 <div class="flex items-center gap-2 text-sm">
-<span class="text-red-600 bg-red-50 px-2 py-0.5 rounded-full font-bold">{{ pending_payments.count }} Invoices</span>
-<span class="text-gray-500">awaiting settlement</span>
+<span class="text-red-600 bg-red-50 px-2 py-0.5 rounded-full font-bold">{{ pending_payments.count }} {% trans "facturas" %}</span>
+<span class="text-gray-500">{% trans "pendientes de cobro" %}</span>
 </div>
 </div>
 </div>
@@ -108,7 +35,7 @@
 <!-- Pricing Tiers -->
 <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg shadow-level-1 overflow-hidden">
 <div class="p-6 border-b border-gray-200 bg-gray-50">
-<h3 class="text-xl font-bold text-gray-900">Current Pricing Tiers</h3>
+<h3 class="text-xl font-bold text-gray-900">{% trans "Tarifas Actuales" %}</h3>
 </div>
 <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
 {% for tariff in tariffs %}
@@ -116,19 +43,24 @@
 {% if tariff.tariff_type == 'premium' %}
 <div class="absolute top-0 right-0 bg-blue-700 text-white text-[10px] px-2 py-1 rounded-bl-lg rounded-tr-sm uppercase font-bold">Premium</div>
 {% endif %}
-<h4 class="text-lg font-bold text-gray-900 mb-1 capitalize">{{ tariff.tariff_type }}</h4>
+<h4 class="text-lg font-bold text-gray-900 mb-1 capitalize">{{ tariff.get_tariff_type_display }}</h4>
 <div class="mb-4">
-<span class="text-2xl font-bold {% if tariff.tariff_type == 'premium' %}text-blue-700{% else %}text-gray-900{% endif %}">${{ tariff.price_per_hour }}</span>
-<span class="text-sm text-gray-500">/hr</span>
+{% if tariff.tariff_type == 'monthly' %}
+<span class="text-2xl font-bold {% if tariff.tariff_type == 'premium' %}text-blue-700{% else %}text-gray-900{% endif %}">{{ tariff.price_per_month }}€</span>
+<span class="text-sm text-gray-500">/{% trans "mes" %}</span>
+{% else %}
+<span class="text-2xl font-bold {% if tariff.tariff_type == 'premium' %}text-blue-700{% else %}text-gray-900{% endif %}">{{ tariff.price_per_hour }}€</span>
+<span class="text-sm text-gray-500">/{% trans "hora" %}</span>
+{% endif %}
 </div>
 </div>
 {% empty %}
-<p class="text-gray-500 col-span-3">No active tariffs found.</p>
+<p class="text-gray-500 col-span-3">{% trans "No hay tarifas activas." %}</p>
 {% endfor %}
 </div>
 </div>
 
-<!-- {% trans "Configuración de Precios" %} -->
+<!-- Pricing Configuration -->
 <div class="bg-white border border-gray-200 rounded-lg shadow-level-1 flex flex-col">
 <div class="p-6 border-b border-gray-200 bg-gray-50">
 <h3 class="text-xl font-bold text-gray-900">{% trans "Configuración de Precios" %}</h3>
@@ -143,39 +75,40 @@
 </div>
 </div>
 <div class="space-y-2">
-<label class="text-xs font-semibold text-gray-500 uppercase">Event {% trans "Tarifa" %} Multiplier</label>
+<label class="text-xs font-semibold text-gray-500 uppercase">{% trans "Multiplicador por Evento" %}</label>
 <select name="event_multiplier" class="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm focus:border-blue-700 focus:ring-1 outline-none">
-<option value="1.5">1.5x Base {% trans "Tarifa" %}</option>
-<option value="2.0" selected>2.0x Base {% trans "Tarifa" %}</option>
-<option value="2.5">2.5x Base {% trans "Tarifa" %}</option>
+<option value="1.5">1.5x {% trans "Tarifa Base" %}</option>
+<option value="2.0" selected>2.0x {% trans "Tarifa Base" %}</option>
+<option value="2.5">2.5x {% trans "Tarifa Base" %}</option>
 </select>
 </div>
 <div class="space-y-2 mt-auto">
 <div class="flex items-center justify-between p-4 bg-gray-100 rounded-lg mb-4">
-<span class="text-sm font-semibold uppercase">Dynamic Pricing</span>
+<span class="text-sm font-semibold uppercase">{% trans "Tarificación Dinámica" %}</span>
 <label class="relative inline-flex items-center cursor-pointer">
 <input name="dynamic_pricing" type="checkbox" class="sr-only peer" checked/>
 <div class="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-blue-700 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div>
 </label>
 </div>
 <button type="submit" class="w-full bg-blue-700 text-white font-bold text-sm py-3 rounded-lg uppercase hover:bg-blue-800 transition-colors">
-Apply Changes
+{% trans "Aplicar Cambios" %}
 </button>
 </div>
 </form>
 </div>
 </div>
 
-<!-- {% trans "Transacciones Recientes" %} -->
+<!-- Recent Transactions -->
 <div class="mt-6 bg-white border border-gray-200 rounded-lg shadow-level-1 overflow-hidden">
 <div class="p-6 border-b border-gray-200 bg-gray-50">
 <h3 class="text-xl font-bold text-gray-900">{% trans "Transacciones Recientes" %}</h3>
 </div>
+<div class="overflow-x-auto">
 <table class="w-full text-left border-collapse">
 <thead>
 <tr class="border-b border-gray-200 bg-gray-50">
 <th class="p-4 text-xs font-semibold text-gray-500 uppercase">{% trans "Matrícula" %}</th>
-<th class="p-4 text-xs font-semibold text-gray-500 uppercase">Date</th>
+<th class="p-4 text-xs font-semibold text-gray-500 uppercase">{% trans "Fecha" %}</th>
 <th class="p-4 text-xs font-semibold text-gray-500 uppercase">{% trans "Importe" %}</th>
 <th class="p-4 text-xs font-semibold text-gray-500 uppercase">{% trans "Estado" %}</th>
 </tr>
@@ -184,20 +117,19 @@ Apply Changes
 {% for txn in recent_transactions %}
 <tr class="border-b border-gray-100 hover:bg-gray-50">
 <td class="p-4">{{ txn.license_plate }}</td>
-<td class="p-4 text-gray-700">{{ txn.exit_time|date:"M d, H:i" }}</td>
-<td class="p-4 font-bold text-gray-900">${{ txn.total_amount }}</td>
+<td class="p-4 text-gray-700">{{ txn.exit_time|date:"d/m/Y H:i" }}</td>
+<td class="p-4 font-bold text-gray-900">{{ txn.total_amount }}€</td>
 <td class="p-4">
 <span class="inline-flex items-center gap-1 text-green-800 bg-green-100 px-2 py-1 rounded-full text-xs">
-Paid
+{% trans "Pagado" %}
 </span>
 </td>
 </tr>
 {% empty %}
-<tr><td colspan="4" class="p-4 text-center text-gray-500">No recent transactions.</td></tr>
+<tr><td colspan="4" class="p-4 text-center text-gray-500">{% trans "No hay transacciones recientes." %}</td></tr>
 {% endfor %}
 </tbody>
 </table>
 </div>
 </div>
-</main>
-</body></html>
+{% endblock %}

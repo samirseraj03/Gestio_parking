@@ -1,0 +1,128 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ParkControl Pro - {% block title %}{% endblock %}</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<style>
+    body { font-family: 'Inter', sans-serif; background-color: #fcf8fa; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .fill-icon { font-variation-settings: 'FILL' 1; }
+    .shadow-level-1 { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02); }
+    .card-shadow { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02); }
+</style>
+{% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen antialiased">
+
+<!-- Sidebar Overlay (mobile) -->
+<div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
+<!-- SideNavBar -->
+<nav id="sidebar" class="flex flex-col h-full py-6 bg-white fixed left-0 top-0 w-[280px] border-r border-gray-200 z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+<div class="px-6 mb-8">
+<h1 class="text-2xl font-bold text-gray-900">ParkControl Pro</h1>
+<p class="text-sm text-gray-500 mt-1">{% trans "Terminal A - Principal" %}</p>
+</div>
+<div class="flex-1 flex flex-col gap-1 px-4 overflow-y-auto">
+
+<a class="flex items-center gap-4 px-4 py-2.5 rounded-lg transition-colors {% if active_page == 'dashboard' %}text-blue-700 font-bold border-l-4 border-blue-700 bg-blue-50{% else %}text-gray-600 hover:bg-gray-100{% endif %}" href="{% url 'dashboard' %}">
+<span class="material-symbols-outlined {% if active_page == 'dashboard' %}fill-icon{% endif %}">dashboard</span>
+<span class="text-sm font-semibold">{% trans "Panel de Control" %}</span>
+</a>
+
+<a class="flex items-center gap-4 px-4 py-2.5 rounded-lg transition-colors {% if active_page == 'vehicle_search' %}text-blue-700 font-bold border-l-4 border-blue-700 bg-blue-50{% else %}text-gray-600 hover:bg-gray-100{% endif %}" href="{% url 'vehicle_search' %}">
+<span class="material-symbols-outlined {% if active_page == 'vehicle_search' %}fill-icon{% endif %}">search</span>
+<span class="text-sm font-semibold">{% trans "Entrada / Salida" %}</span>
+</a>
+
+<a class="flex items-center gap-4 px-4 py-2.5 rounded-lg transition-colors {% if active_page == 'parking_list' %}text-blue-700 font-bold border-l-4 border-blue-700 bg-blue-50{% else %}text-gray-600 hover:bg-gray-100{% endif %}" href="{% url 'parking_list' %}">
+<span class="material-symbols-outlined {% if active_page == 'parking_list' %}fill-icon{% endif %}">location_city</span>
+<span class="text-sm font-semibold">{% trans "Parkings" %}</span>
+</a>
+
+<a class="flex items-center gap-4 px-4 py-2.5 rounded-lg transition-colors {% if active_page == 'space_management' %}text-blue-700 font-bold border-l-4 border-blue-700 bg-blue-50{% else %}text-gray-600 hover:bg-gray-100{% endif %}" href="{% url 'space_management' %}">
+<span class="material-symbols-outlined {% if active_page == 'space_management' %}fill-icon{% endif %}">mms</span>
+<span class="text-sm font-semibold">{% trans "Mapa de Plazas" %}</span>
+</a>
+
+<a class="flex items-center gap-4 px-4 py-2.5 rounded-lg transition-colors {% if active_page == 'vehicle_registry' %}text-blue-700 font-bold border-l-4 border-blue-700 bg-blue-50{% else %}text-gray-600 hover:bg-gray-100{% endif %}" href="{% url 'vehicle_registry' %}">
+<span class="material-symbols-outlined {% if active_page == 'vehicle_registry' %}fill-icon{% endif %}">directions_car</span>
+<span class="text-sm font-semibold">{% trans "Vehículos Activos" %}</span>
+</a>
+
+<a class="flex items-center gap-4 px-4 py-2.5 rounded-lg transition-colors {% if active_page == 'rates_billing' %}text-blue-700 font-bold border-l-4 border-blue-700 bg-blue-50{% else %}text-gray-600 hover:bg-gray-100{% endif %}" href="{% url 'rates_billing' %}">
+<span class="material-symbols-outlined {% if active_page == 'rates_billing' %}fill-icon{% endif %}">payments</span>
+<span class="text-sm font-semibold">{% trans "Tarifas y Facturación" %}</span>
+</a>
+
+<a class="flex items-center gap-4 px-4 py-2.5 rounded-lg transition-colors {% if active_page == 'analytics' %}text-blue-700 font-bold border-l-4 border-blue-700 bg-blue-50{% else %}text-gray-600 hover:bg-gray-100{% endif %}" href="{% url 'analytics' %}">
+<span class="material-symbols-outlined {% if active_page == 'analytics' %}fill-icon{% endif %}">analytics</span>
+<span class="text-sm font-semibold">{% trans "Consultas e Informes" %}</span>
+</a>
+
+</div>
+</nav>
+
+<!-- Main Content Area -->
+<main class="md:ml-[280px] min-h-screen flex flex-col">
+<!-- Top Header Bar -->
+<header class="bg-white border-b border-gray-200 flex items-center h-16 px-6 sticky top-0 z-30">
+
+<button type="button" onclick="toggleSidebar()" class="md:hidden text-gray-500 hover:text-gray-900 focus:outline-none mr-4 flex items-center justify-center shrink-0">
+    <span class="material-symbols-outlined text-2xl">menu</span>
+</button>
+
+<div class="text-xl font-bold text-gray-900">{% block page_title %}{% endblock %}</div>
+
+<form action="{% url 'set_language' %}" method="post" class="ml-auto flex items-center">
+    {% csrf_token %}
+    <input name="next" type="hidden" value="{{ request.get_full_path }}">
+    <div class="relative">
+        <select name="language" onchange="this.form.submit()" class="appearance-none bg-gray-100 hover:bg-gray-200 border border-transparent text-gray-700 font-bold py-1.5 pl-3 pr-8 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors text-sm cursor-pointer shadow-sm">
+            {% get_current_language as LANGUAGE_CODE %}
+            {% get_available_languages as LANGUAGES %}
+            {% get_language_info_list for LANGUAGES as languages %}
+            {% for language in languages %}
+                <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                    {{ language.code|upper }}
+                </option>
+            {% endfor %}
+        </select>
+        <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" style="font-size: 16px;">language</span>
+    </div>
+</form>
+
+</header>
+
+<!-- Page Content -->
+<div class="flex-1 p-6 overflow-y-auto">
+{% if messages %}
+<div class="mb-6 space-y-2">
+    {% for message in messages %}
+    <div class="p-4 rounded-lg {% if message.tags == 'error' %}bg-red-50 text-red-700 border border-red-200{% else %}bg-green-50 text-green-700 border border-green-200{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% block content %}{% endblock %}
+</div>
+</main>
+
+<script>
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    sidebar.classList.toggle('-translate-x-full');
+    overlay.classList.toggle('hidden');
+}
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -17,6 +17,7 @@ class DashboardView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["active_page"] = "dashboard"
         
         # 1. Obtener datos a través de los selectores (Read-only logic)
         context["occupancy"] = selectors.get_occupancy_stats()
@@ -38,6 +39,7 @@ class SpaceManagementView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["active_page"] = "space_management"
         
         # 1. Capturar parámetros de búsqueda/filtrado desde la URL (ej: ?floor=1&status=occupied)
         floor = self.request.GET.get("floor")
@@ -79,6 +81,7 @@ class VehicleRegistryView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["active_page"] = "vehicle_registry"
         
         # 1. Obtener parámetros de la petición HTTP
         search = self.request.GET.get("search", "")
@@ -109,6 +112,7 @@ class RatesBillingView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["active_page"] = "rates_billing"
         
         # --- LECTURA (Delegada a Selectores) ---
         context["monthly_revenue"] = selectors.get_current_monthly_revenue()
@@ -148,6 +152,7 @@ class ParkingListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["active_page"] = "parking_list"
         context['parkings'] = selectors.get_active_parkings()
         return context
         
@@ -177,6 +182,11 @@ class VehicleSearchView(TemplateView):
     """Controlador central para buscar un vehículo por matrícula y decidir el flujo."""
     template_name = "parking/vehicle_search.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["active_page"] = "vehicle_search"
+        return context
+
     def post(self, request, *args, **kwargs):
         license_plate = request.POST.get("license_plate", "").strip().upper()
         if not license_plate:
@@ -198,6 +208,7 @@ class CheckInView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["active_page"] = "vehicle_search"
         plate = self.kwargs.get("plate")
         context["license_plate"] = plate
         context["tariffs"] = selectors.get_active_tariffs()
@@ -224,6 +235,7 @@ class CheckOutView(TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["active_page"] = "vehicle_search"
         plate = self.kwargs.get("plate")
         context["license_plate"] = plate
         
@@ -266,6 +278,7 @@ class AnalyticsView(TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["active_page"] = "analytics"
         
         # Historial por matrícula
         search_plate = self.request.GET.get("plate")

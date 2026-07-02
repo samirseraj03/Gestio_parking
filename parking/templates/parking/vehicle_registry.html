@@ -1,88 +1,25 @@
+{% extends "parking/_base.html" %}
 {% load i18n %}
-<!DOCTYPE html>
-<html lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Vehicle Registry - ParkControl Pro</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<style>
-    body { font-family: 'Inter', sans-serif; background-color: #fcf8fa; }
-    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-    .fill-icon { font-variation-settings: 'FILL' 1; }
-</style>
-</head>
-<body class="bg-gray-50 text-gray-900 font-sans antialiased h-screen flex overflow-hidden">
-<!-- SideNavBar -->
-<nav id="sidebar" class="flex flex-col h-full py-6 bg-white fixed left-0 top-0 w-[280px] border-r border-gray-200 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex">
 
-<div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden md:hidden"></div>
+{% block title %}{% trans "Vehículos Activos" %}{% endblock %}
+{% block page_title %}{% trans "Vehículos Activos" %}{% endblock %}
 
-<div class="px-6 mb-8">
-<h1 class="text-2xl font-bold text-gray-900">ParkControl Pro</h1>
-<p class="text-sm text-gray-500 mt-1">{% trans "Terminal A - Principal" %}</p>
-</div>
-<div class="flex-1 overflow-y-auto px-4 flex flex-col gap-2">
-<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'dashboard' %}"><span class="material-symbols-outlined">dashboard</span><span class="text-sm font-semibold">{% trans "Dashboard" %}</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'vehicle_search' %}"><span class="material-symbols-outlined">search</span><span class="text-sm font-semibold">{% trans "Buscador" %}</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'parking_list' %}"><span class="material-symbols-outlined">location_city</span><span class="text-sm font-semibold">{% trans "Parkings" %}</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'space_management' %}"><span class="material-symbols-outlined">mms</span><span class="text-sm font-semibold">{% trans "Space Management" %}</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded text-blue-700 font-bold border-r-4 border-blue-700 bg-blue-50" href="{% url 'vehicle_registry' %}"><span class="material-symbols-outlined fill-icon">directions_car</span><span class="text-sm font-semibold">{% trans "Vehicle Registry" %}</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'rates_billing' %}"><span class="material-symbols-outlined">payments</span><span class="text-sm font-semibold">{% trans "Tarifa" %}s &amp; Billing" %}</span></a>
-<a class="flex items-center gap-4 px-4 py-2 rounded text-gray-600 hover:bg-gray-100" href="{% url 'analytics' %}"><span class="material-symbols-outlined">analytics</span><span class="text-sm font-semibold">{% trans "Analíticas" %}</span></a>
-</div>
-
-
-</nav>
-
-
-<!-- Main Content Area -->
-<main class="flex-1 flex flex-col md:md:ml-[280px] h-full overflow-hidden w-full relative md:ml-[280px]">
-<header class="flex justify-between items-center h-16 px-6 bg-white border-b border-gray-200 z-10 shrink-0">
-
-<button type="button" onclick="toggleSidebar()" class="md:hidden text-gray-500 hover:text-gray-900 focus:outline-none mr-4 flex items-center justify-center shrink-0">
-    <span class="material-symbols-outlined text-2xl">menu</span>
-</button>
-
-<h1 class="text-xl font-bold text-gray-900">{% trans "Vehicle Registry" %}</h1>
-
-
-<form action="{% url 'set_language' %}" method="post" class="ml-auto flex items-center">
-    {% csrf_token %}
-    <input name="next" type="hidden" value="{{ request.get_full_path }}">
-    <div class="relative">
-        <select name="language" onchange="this.form.submit()" class="appearance-none bg-gray-100 hover:bg-gray-200 border border-transparent text-gray-700 font-bold py-1.5 pl-3 pr-8 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors text-sm cursor-pointer shadow-sm">
-            {% get_current_language as LANGUAGE_CODE %}
-            {% get_available_languages as LANGUAGES %}
-            {% get_language_info_list for LANGUAGES as languages %}
-            {% for language in languages %}
-                <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
-                    {{ language.code|upper }}
-                </option>
-            {% endfor %}
-        </select>
-        <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" style="font-size: 16px;">language</span>
-    </div>
-</form>
-
-</header>
-<div class="flex-1 overflow-y-auto p-6 flex flex-col gap-6 bg-gray-50 relative z-0">
+{% block content %}
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-4">
 <div>
-<h2 class="text-2xl font-bold text-gray-900 mb-1 hidden md:block">{% trans "Activo" %} Vehicles</h2>
-<p class="text-sm text-gray-500">Monitoring {{ total_vehicles }} currently registered units across all zones.</p>
+<h2 class="text-2xl font-bold text-gray-900 mb-1 hidden md:block">{% trans "Vehículos Activos" %}</h2>
+<p class="text-sm text-gray-500">{% blocktrans with count=total_vehicles %}Monitorizando {{ count }} vehículos registrados en todas las zonas.{% endblocktrans %}</p>
 </div>
 <form method="GET" class="flex flex-wrap items-center gap-4">
 <input type="hidden" name="status_filter" value="{{ request.GET.status_filter|default:'all' }}">
 <div class="flex bg-white rounded-lg border border-gray-200 p-1">
-<button type="submit" name="status_filter" value="all" class="px-4 py-2 text-xs font-semibold rounded {% if request.GET.status_filter == 'all' or not request.GET.status_filter %}bg-blue-50 text-blue-700{% else %}text-gray-500 hover:bg-gray-100{% endif %}">All</button>
-<button type="submit" name="status_filter" value="overstay" class="px-4 py-2 text-xs font-semibold rounded {% if request.GET.status_filter == 'overstay' %}bg-blue-50 text-blue-700{% else %}text-gray-500 hover:bg-gray-100{% endif %}">Overstay</button>
+<button type="submit" name="status_filter" value="all" class="px-4 py-2 text-xs font-semibold rounded {% if request.GET.status_filter == 'all' or not request.GET.status_filter %}bg-blue-50 text-blue-700{% else %}text-gray-500 hover:bg-gray-100{% endif %}">{% trans "Todos" %}</button>
+<button type="submit" name="status_filter" value="overstay" class="px-4 py-2 text-xs font-semibold rounded {% if request.GET.status_filter == 'overstay' %}bg-blue-50 text-blue-700{% else %}text-gray-500 hover:bg-gray-100{% endif %}">{% trans "Exceso de tiempo" %}</button>
 <button type="submit" name="status_filter" value="vip" class="px-4 py-2 text-xs font-semibold rounded {% if request.GET.status_filter == 'vip' %}bg-blue-50 text-blue-700{% else %}text-gray-500 hover:bg-gray-100{% endif %}">VIP</button>
 </div>
 <div class="relative">
 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-<input name="search" value="{{ request.GET.search }}" class="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-full text-sm focus:border-blue-700 focus:ring-1 focus:ring-blue-700" placeholder="{% trans "Buscar" %} plates..."/>
+<input name="search" value="{{ request.GET.search }}" class="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-full text-sm focus:border-blue-700 focus:ring-1 focus:ring-blue-700" placeholder="{% trans "Buscar matrículas..." %}"/>
 </div>
 </form>
 </div>
@@ -93,9 +30,9 @@
 <table class="w-full text-left border-collapse min-w-[800px]">
 <thead>
 <tr class="bg-gray-50 border-b border-gray-200 text-gray-500">
-<th class="p-4 text-xs font-semibold uppercase">License Plate</th>
-<th class="p-4 text-xs font-semibold uppercase">Entry Time</th>
-<th class="p-4 text-xs font-semibold uppercase">Zone / Spot</th>
+<th class="p-4 text-xs font-semibold uppercase">{% trans "Matrícula" %}</th>
+<th class="p-4 text-xs font-semibold uppercase">{% trans "Hora de Entrada" %}</th>
+<th class="p-4 text-xs font-semibold uppercase">{% trans "Zona / Plaza" %}</th>
 <th class="p-4 text-xs font-semibold uppercase">{% trans "Estado" %}</th>
 </tr>
 </thead>
@@ -123,14 +60,14 @@
 </td>
 </tr>
 {% empty %}
-<tr><td colspan="4" class="p-4 text-center text-gray-500">No active vehicles found.</td></tr>
+<tr><td colspan="4" class="p-4 text-center text-gray-500">{% trans "No se encontraron vehículos activos." %}</td></tr>
 {% endfor %}
 </tbody>
 </table>
 </div>
 <!-- Pagination Footer -->
 <div class="p-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
-<span class="text-sm text-gray-500">Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+<span class="text-sm text-gray-500">{% blocktrans with current=page_obj.number total=page_obj.paginator.num_pages %}Página {{ current }} de {{ total }}{% endblocktrans %}</span>
 <div class="flex items-center gap-2">
 {% if page_obj.has_previous %}
 <a href="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search }}&status_filter={{ request.GET.status_filter }}" class="p-1 text-gray-500 hover:text-gray-900"><span class="material-symbols-outlined">chevron_left</span></a>
@@ -142,6 +79,4 @@
 </div>
 </div>
 </div>
-</div>
-</main>
-</body></html>
+{% endblock %}

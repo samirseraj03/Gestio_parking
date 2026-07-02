@@ -1,3 +1,11 @@
+"""
+ParkControl Pro — Seed de Datos Iniciales (Idempotente)
+
+Este script se ejecuta automáticamente al arrancar Docker.
+Usa get_or_create para garantizar que los datos se insertan UNA SOLA VEZ.
+En ejecuciones posteriores, detecta que los datos ya existen y no duplica nada.
+"""
+
 import os
 import django
 from decimal import Decimal
@@ -9,79 +17,100 @@ django.setup()
 
 from parking.models import Parking, Level, ParkingSpot, Tariff, VehicleSession, TariffType, SpotStatus
 
+
 def run_seed():
-    if Parking.objects.exists():
-        print("Database already seeded. Skipping.")
-        return
-        
-    print("Seeding database...")
-    
-    VehicleSession.objects.all().delete()
-    
-    # 1. Tariffs
-    Tariff.objects.all().delete()
-    basic_tariff = Tariff.objects.create(tariff_type=TariffType.BASIC, price_per_hour=Decimal("4.00"), is_active=True)
-    premium_tariff = Tariff.objects.create(tariff_type=TariffType.PREMIUM, price_per_hour=Decimal("8.00"), is_active=True)
-    monthly_tariff = Tariff.objects.create(tariff_type=TariffType.MONTHLY, price_per_hour=Decimal("250.00"), is_active=True)
-    # 1.5 Parkings
-    Parking.objects.all().delete()
-    main_parking = Parking.objects.create(name="Terminal A - Main", address="Av. Aeropuerto 123")
-    
-    # 2. Levels
-    Level.objects.all().delete()
-    level1 = Level.objects.create(parking=main_parking, name="Nivel 1", floor_number=1)
-    level2 = Level.objects.create(parking=main_parking, name="Nivel 2", floor_number=2)
-    
-    # 3. Spots
-    ParkingSpot.objects.all().delete()
-    for i in range(1, 11):
-        ParkingSpot.objects.create(level=level1, number=i, status=SpotStatus.FREE)
-        ParkingSpot.objects.create(level=level2, number=i, status=SpotStatus.FREE)
-        
-    # Mark some as occupied or reserved
-    spot1 = ParkingSpot.objects.get(level=level1, number=1)
-    spot1.status = SpotStatus.OCCUPIED
-    spot1.save()
-    
-    spot2 = ParkingSpot.objects.get(level=level1, number=2)
-    spot2.status = SpotStatus.RESERVED
-    spot2.save()
-    
-    spot3 = ParkingSpot.objects.get(level=level2, number=1)
-    spot3.status = SpotStatus.OCCUPIED
-    spot3.save()
-    
-    # 4. Sessions
-    VehicleSession.objects.all().delete()
-    now = timezone.now()
-    
-    # Active Session 1
-    VehicleSession.objects.create(
-        license_plate="ABC-1234",
-        parking_spot=spot1,
-        tariff=basic_tariff,
-        entry_time=now - datetime.timedelta(hours=2, minutes=45)
+    print("🔍 Verificando datos iniciales...")
+    created_count = 0
+
+    # ─── 1. TARIFAS (siempre se crean si no existen) ───
+    basic_tariff, created = Tariff.objects.get_or_create(
+        tariff_type=TariffType.BASIC,
+        defaults={
+            'name': 'Tarifa Básica',
+            'price_per_hour': Decimal("4.00"),
+            'price_per_month': Decimal("0.00"),
+            'is_active': True,
+        }
     )
-    
-    # Active Session 2 (Premium/VIP)
-    VehicleSession.objects.create(
-        license_plate="DEF-5555",
-        parking_spot=spot3,
-        tariff=premium_tariff,
-        entry_time=now - datetime.timedelta(hours=1, minutes=30)
+    if created:
+        created_count += 1
+        print("  ✅ Tarifa Básica creada (4.00€/h)")
+
+    premium_tariff, created = Tariff.objects.get_or_create(
+        tariff_type=TariffType.PREMIUM,
+        defaults={
+            'name': 'Tarifa Premium',
+            'price_per_hour': Decimal("8.00"),
+            'price_per_month': Decimal("0.00"),
+            'is_active': True,
+        }
     )
-    
-    # Completed Session
-    VehicleSession.objects.create(
-        license_plate="XYZ-9876",
-        parking_spot=ParkingSpot.objects.get(level=level1, number=3),
-        tariff=basic_tariff,
-        entry_time=now - datetime.timedelta(days=1, hours=3),
-        exit_time=now - datetime.timedelta(days=1),
-        total_amount=Decimal("12.00")
+    if created:
+        created_count += 1
+        print("  ✅ Tarifa Premium creada (8.00€/h)")
+
+    monthly_tariff, created = Tariff.objects.get_or_create(
+        tariff_type=TariffType.MONTHLY,
+        defaults={
+            'name': 'Tarifa Mensual',
+            'price_per_hour': Decimal("0.00"),
+            'price_per_month': Decimal("250.00"),
+            'is_active': True,
+        }
     )
-    
-    print("Done!")
+    if created:
+        created_count += 1
+        print("  ✅ Tarifa Mensual creada (250.00€/mes)")
+
+    # ─── 2. PARKING ───
+    main_parking, created = Parking.objects.get_or_create(
+        name="Terminal A - Principal",
+        defaults={'address': "Av. Aeropuerto 123"}
+    )
+    if created:
+        created_count += 1
+        print("  ✅ Parking 'Terminal A - Principal' creado")
+
+    # ─── 3. NIVELES ───
+    level1, created = Level.objects.get_or_create(
+        parking=main_parking,
+        floor_number=1,
+        defaults={'name': "Nivel 1"}
+    )
+    if created:
+        created_count += 1
+        print("  ✅ Nivel 1 creado")
+
+    level2, created = Level.objects.get_or_create(
+        parking=main_parking,
+        floor_number=2,
+        defaults={'name': "Nivel 2"}
+    )
+    if created:
+        created_count += 1
+        print("  ✅ Nivel 2 creado")
+
+    # ─── 4. PLAZAS ───
+    spots_created = 0
+    for level in [level1, level2]:
+        for i in range(1, 11):
+            _, created = ParkingSpot.objects.get_or_create(
+                level=level,
+                number=i,
+                defaults={'status': SpotStatus.FREE}
+            )
+            if created:
+                spots_created += 1
+    if spots_created > 0:
+        created_count += spots_created
+        print(f"  ✅ {spots_created} plazas de aparcamiento creadas")
+
+    # ─── RESUMEN ───
+    if created_count == 0:
+        print("ℹ️  Base de datos ya contiene datos iniciales. Sin cambios.")
+    else:
+        print(f"🎉 Seed completado: {created_count} registros creados.")
+
 
 if __name__ == '__main__':
     run_seed()

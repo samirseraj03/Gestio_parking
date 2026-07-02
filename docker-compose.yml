@@ -28,7 +28,9 @@ services:
     container_name: parkcontrol_web
     restart: unless-stopped
     command: >
-      bash -c "python manage.py migrate && 
+      bash -c "python manage.py migrate &&
+               python seed.py &&
+               python manage.py compilemessages &&
                python manage.py runserver 0.0.0.0:8000"
     volumes:
       # Sincroniza el código en tiempo real (solo útil para desarrollo local)
