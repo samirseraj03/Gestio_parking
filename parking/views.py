@@ -61,7 +61,6 @@ class SpaceManagementView(TemplateView):
                 services.cancel_reservation(spot_id=int(spot_id))
                 messages.success(request, _("Plaza liberada con éxito."))
         except Exception as e:
-            from django.contrib import messages
             messages.error(request, _("Error al modificar plaza: %(error)s") % {'error': e})
             
         from django.urls import reverse
